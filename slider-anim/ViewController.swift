@@ -19,6 +19,7 @@ class ViewController: UIViewController {
 
     @IBOutlet weak var buildingImageView: UIImageView!
     @IBOutlet weak var slider: UISlider!
+    @IBOutlet weak var moonImageView: UIImageView!
     
     typealias gradientSet = Array<Array<CGFloat>>
     
@@ -41,32 +42,41 @@ class ViewController: UIViewController {
             CGColor(srgbRed: startGradient[1][0], green: startGradient[1][1], blue: startGradient[1][2], alpha: 1)
         ]
         view.layer.insertSublayer(gradientLayer, at: 0)
+        
+        // moon image view init
+        moonRising(degrees: -30)
     }
 
     @IBAction func changeViews(_ sender: UISlider) {
         let result: String = String(format: "hades_%03d.png", arguments: [Int(sender.value)])
         buildingImageView.image = UIImage(named: result)
         
-        let gradi0 = convertGradientSet(index: 0, startGradi: startGradient, endGradi: endGradient, sliderMax: slider.maximumValue, currentVal: sender.value)
-        let gradi1 = convertGradientSet(index: 1, startGradi: startGradient, endGradi: endGradient, sliderMax: slider.maximumValue, currentVal: sender.value)
+        let gradi0 = convertGradientSet(index: 0, startGradi: startGradient, endGradi: endGradient, currentVal: sender.value)
+        let gradi1 = convertGradientSet(index: 1, startGradi: startGradient, endGradi: endGradient, currentVal: sender.value)
         
         gradientLayer.colors = [
             CGColor(srgbRed: gradi0[0], green: gradi0[1], blue: gradi0[2], alpha: 1),
             CGColor(srgbRed: gradi1[0], green: gradi1[1], blue: gradi1[2], alpha: 1)
         ]
+        
+        moonRising(degrees: CGFloat(sender.value))
     }
     
-    func convertGradientSet(index: Int, startGradi: gradientSet, endGradi: gradientSet, sliderMax: Float, currentVal: Float) -> Array<CGFloat> {
+    func convertGradientSet(index: Int, startGradi: gradientSet, endGradi: gradientSet, currentVal: Float) -> Array<CGFloat> {
         var result: Array<CGFloat> = []
         for i in 0...2 {
-            let value = convertGradient(origColor: startGradi[index][i], targetColor: endGradi[index][i], sliderMax: sliderMax, currentVal: currentVal)
+            let value = convertGradient(origColor: startGradi[index][i], targetColor: endGradi[index][i], currentVal: currentVal)
             result.append(value)
         }
         return result
     }
     
-    func convertGradient(origColor: CGFloat, targetColor: CGFloat, sliderMax: Float, currentVal: Float) -> CGFloat {
-        return origColor + (targetColor - origColor)*CGFloat(currentVal)/CGFloat(sliderMax)
+    func convertGradient(origColor: CGFloat, targetColor: CGFloat, currentVal: Float) -> CGFloat {
+        return origColor + (targetColor - origColor)*CGFloat(currentVal)/CGFloat(slider.maximumValue)
+    }
+    
+    func moonRising(degrees: CGFloat) {
+        moonImageView.transform = CGAffineTransform.identity.rotated(by: -CGFloat.pi / 180 * (degrees - 30)).translatedBy(x: 290, y: 0)
     }
     
 }
